@@ -19,14 +19,19 @@ logos-container        (ModuleContainer + ModuleDescriptor value types)
 
 ## Scope
 
-This package is **only** the format-loader interface. `module_format_loader.h`
+This package is the format-loader interface plus a link-time factory seam.
+`module_format_loader.h` declares the `ModuleFormatLoader` interface (and
 consumes `ModuleDescriptor` from `logos-container`, so it depends on that
-contract; it does not depend on liblogos. The `ModuleLoader` base and the
-`CompositeModuleLoader` / `ModuleLoaderRegistry` orchestration are core concerns
-and live in `logos-liblogos`.
+contract; it does not depend on liblogos). `format_loader_factory.h` declares
+`LogosCore::makeFormatLoader()`, which a consumer (liblogos) calls to obtain the
+build's default loader without naming a concrete type — the *definition* is
+provided by whichever implementation library is linked in (e.g.
+`logos-module-loader-qt`). The `ModuleLoader` base and the `CompositeModuleLoader`
+/ `ModuleLoaderRegistry` orchestration are core concerns and live in
+`logos-liblogos`.
 
 Header-only: the CMake target is an `INTERFACE` library and the nix package is
-just the installed header.
+just the installed headers.
 
 ## Build & test
 
