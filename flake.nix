@@ -5,6 +5,8 @@
     logos-nix.url = "github:logos-co/logos-nix";
     nixpkgs.follows = "logos-nix/nixpkgs";
     logos-container.url = "github:logos-co/logos-container";
+    # so an override of logos-nix reaches logos-container too
+    logos-container.inputs.logos-nix.follows = "logos-nix";
   };
 
   outputs = { self, nixpkgs, logos-nix, logos-container }:
@@ -15,9 +17,22 @@
         pkgs = import nixpkgs { inherit system; };
         logosContainer = logos-container.packages.${system}.default;
       });
+
+      # Same, plus "x86_64-windows". Not logos-nix's shared forAllTargets,
+      # because this flake threads logosContainer through -- a header-only
+      # contract compiled into the target, so it follows the TARGET.
+      forAllTargets = f:
+        nixpkgs.lib.genAttrs (systems ++ [ "x86_64-windows" ]) (system: f {
+          inherit system;
+          pkgs =
+            if system == "x86_64-windows"
+            then logos-nix.lib.mkWindowsPkgs { buildSystem = "x86_64-linux"; }
+            else import nixpkgs { inherit system; };
+          logosContainer = logos-container.packages.${system}.default;
+        });
     in
     {
-      packages = forAllSystems ({ pkgs, system, logosContainer }:
+      packages = forAllTargets ({ pkgs, system, logosContainer, ... }:
         let
           common = import ./nix/default.nix { inherit pkgs logosContainer; };
           src = ./.;

@@ -28,6 +28,6 @@
 
   meta = with pkgs.lib; {
     description = "Module-loader contract: the Qt-free ModuleFormatLoader interface (what format a module is)";
-    platforms = platforms.unix;
+    platforms = platforms.unix ++ platforms.windows;
   };
 }
