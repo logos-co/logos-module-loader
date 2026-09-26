@@ -2,9 +2,9 @@
   description = "Module-loader contract: the Qt-free ModuleFormatLoader interface";
 
   inputs = {
-    logos-nix.url = "github:logos-co/logos-nix";
+    logos-nix.url = "github:logos-co/logos-nix/feat/standalone-apps";
     nixpkgs.follows = "logos-nix/nixpkgs";
-    logos-container.url = "github:logos-co/logos-container";
+    logos-container.url = "github:logos-co/logos-container/feat/standalone-apps";
     # so an override of logos-nix reaches logos-container too
     logos-container.inputs.logos-nix.follows = "logos-nix";
   };
@@ -18,15 +18,18 @@
         logosContainer = logos-container.packages.${system}.default;
       });
 
-      # Same, plus "x86_64-windows". Not logos-nix's shared forAllTargets,
-      # because this flake threads logosContainer through -- a header-only
-      # contract compiled into the target, so it follows the TARGET.
+      # Same, plus "x86_64-windows" and "aarch64-android". Not logos-nix's
+      # shared forAllTargets, because this flake threads logosContainer through
+      # -- a header-only contract compiled into the target, so it follows the
+      # TARGET.
       forAllTargets = f:
-        nixpkgs.lib.genAttrs (systems ++ [ "x86_64-windows" ]) (system: f {
+        nixpkgs.lib.genAttrs (systems ++ [ "x86_64-windows" "aarch64-android" ]) (system: f {
           inherit system;
           pkgs =
             if system == "x86_64-windows"
             then logos-nix.lib.mkWindowsPkgs { buildSystem = "x86_64-linux"; }
+            else if system == "aarch64-android"
+            then logos-nix.lib.mobileTargets.aarch64-android.pkgs
             else import nixpkgs { inherit system; };
           logosContainer = logos-container.packages.${system}.default;
         });
