@@ -2,9 +2,9 @@
   description = "Module-loader contract: the Qt-free ModuleFormatLoader interface";
 
   inputs = {
-    logos-nix.url = "github:logos-co/logos-nix";
+    logos-nix.url = "github:logos-co/logos-nix/feat/standalone-apps";
     nixpkgs.follows = "logos-nix/nixpkgs";
-    logos-container.url = "github:logos-co/logos-container";
+    logos-container.url = "github:logos-co/logos-container/feat/standalone-apps";
     # so an override of logos-nix reaches logos-container too
     logos-container.inputs.logos-nix.follows = "logos-nix";
   };
